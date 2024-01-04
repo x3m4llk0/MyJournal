@@ -6,7 +6,7 @@ class SArticle(BaseModel):
     title: str
     contents: str
     publication_date: date
-    author: int
+    author: str
     class Config:
         orm_mode = True
 

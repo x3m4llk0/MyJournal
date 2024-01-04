@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, status
 from pydantic import BaseModel
 from typing import List
 
@@ -13,6 +13,22 @@ router = APIRouter(prefix="/articles", tags=["Статьи"])
 @router.get('')
 async def get_all_articles() -> list[SArticle]:
     return await ArticleDAO.find_all()
+
+
+@router.post("/create", status_code=201)
+async def create_article(article_data: SArticle):
+    existing_title = await ArticleDAO.find_one_or_none(title=article_data.title)
+    if existing_title:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Статья с таким названием уже существует")
+    new_article = await ArticleDAO.add_article(title=article_data.title,
+                                               contents=article_data.contents,
+                                               publication_date=article_data.publication_date,
+                                               author=article_data.author)
+    if not new_article:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Не удалось добавить запись")
+
+
+
 
 
 #

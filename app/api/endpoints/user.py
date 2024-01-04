@@ -2,19 +2,11 @@ from fastapi import APIRouter, Depends, Response, HTTPException, status
 
 from app.api.auth.auth import authenticate_user, create_access_token, get_password_hash
 from app.api.dao.userdao import UserDAO
-# from app.users.dependencies import get_current_user
-from app.api.models.user import User
+
 from app.api.models.schemas import SUserRegister, SUserLogin
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Auth"],
-)
+router = APIRouter()
 
-router_users = APIRouter(
-    prefix="/users",
-    tags=["Пользователи"],
-)
 
 @router.post("/register", status_code=201)
 async def register_user(user_data: SUserRegister):
