@@ -12,12 +12,13 @@ app = FastAPI()
 
 router = APIRouter(prefix="/articles", tags=["Статьи"])
 
-
+# Получение всех статей
 @router.get('')
 async def get_all_articles() -> list[SArticle]:
     return await ArticleDAO.find_all()
 
 
+# Создание статьи
 @router.post("/create", status_code=201)
 async def create_article(article_data: SArticleCreate, author: User = Depends(get_current_user)):
     existing_title = await ArticleDAO.find_one_or_none(title=article_data.title)
@@ -32,6 +33,15 @@ async def create_article(article_data: SArticleCreate, author: User = Depends(ge
     if not new_article:
         raise CannotAddDataToDatabase
 
+
+# Удаление статьи по name
+@app.delete("/articles/{article_id}")
+async def delete_article(article_id: int):
+    for idx, existing_article in enumerate(articles_db):
+        if existing_article.id == article_id:
+            del articles_db[idx]
+            return {"message": "Статья удалена"}
+    raise HTTPException(status_code=404, detail="Статья не найдена")
 
 
 
@@ -75,11 +85,3 @@ async def create_article(article_data: SArticleCreate, author: User = Depends(ge
 #             return article
 #     raise HTTPException(status_code=404, detail="Статья не найдена")
 #
-# # Удаление статьи по id
-# @app.delete("/articles/{article_id}")
-# async def delete_article(article_id: int):
-#     for idx, existing_article in enumerate(articles_db):
-#         if existing_article.id == article_id:
-#             del articles_db[idx]
-#             return {"message": "Статья удалена"}
-#     raise HTTPException(status_code=404, detail="Статья не найдена")

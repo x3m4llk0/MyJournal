@@ -3,19 +3,16 @@ from pydantic import BaseModel
 
 
 class SArticle(BaseModel):
+    id: int
     title: str
     contents: str
     publication_date: date
     author: str
-    class Config:
-        orm_mode = True
 
 
 class SArticleCreate(BaseModel):
     title: str
     contents: str
-    class Config:
-        orm_mode = True
 
 
 class SUserRegister(BaseModel):
@@ -23,12 +20,8 @@ class SUserRegister(BaseModel):
     email: str
     password: str
 
-    class Config:
-        orm_mode = True
 
 class SUserLogin(BaseModel):
     name: str
     password: str
 
-    class Config:
-        orm_mode = True
