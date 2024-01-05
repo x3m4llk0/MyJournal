@@ -42,14 +42,23 @@ class UserIsNotPresentException(ArticleException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Необходимо авторизоваться"
 
+
 class ArticleAlreadyExistsException(ArticleException):
     status_code = status.HTTP_409_CONFLICT
     detail = "Статья с таким названием уже существует"
 
-
-class RoomCannotBeBooked(ArticleException):
+class ArticleNotExistsException(ArticleException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    detail = "Не удалось забронировать номер ввиду неизвестной ошибки"
+    detail = "Статья с таким ID не существует"
+
+
+class NoPermissionToDeleteException(ArticleException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "Нет прав для удаления статьи"
+
+class NoPermissionToEditException(ArticleException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "Нет прав для редактирования статьи"
 
 
 class DateFromCannotBeAfterDateTo(ArticleException):

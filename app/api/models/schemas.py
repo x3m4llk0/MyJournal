@@ -15,6 +15,11 @@ class SArticleCreate(BaseModel):
     contents: str
 
 
+class SArticleEdit(BaseModel):
+    title: str
+    contents: str
+
+
 class SUserRegister(BaseModel):
     name: str
     email: str
@@ -24,4 +29,3 @@ class SUserRegister(BaseModel):
 class SUserLogin(BaseModel):
     name: str
     password: str
-
