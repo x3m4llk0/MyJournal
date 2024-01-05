@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class SArticle(BaseModel):
@@ -10,19 +10,14 @@ class SArticle(BaseModel):
     author: str
 
 
-class SArticleCreate(BaseModel):
-    title: str
-    contents: str
-
-
-class SArticleEdit(BaseModel):
+class SArticleCreateEdit(BaseModel):
     title: str
     contents: str
 
 
 class SUserRegister(BaseModel):
     name: str
-    email: str
+    email: EmailStr
     password: str
 
 

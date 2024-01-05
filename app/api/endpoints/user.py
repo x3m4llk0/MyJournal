@@ -8,9 +8,17 @@ from app.api.models.schemas import SUserRegister, SUserLogin
 
 router = APIRouter(prefix="", tags=["Пользователи"])
 
-
 @router.post("/register", status_code=201)
 async def register_user(user_data: SUserRegister):
+    """
+    Регистрирует нового пользователя.\n
+
+    Args:\n
+        :param user_data: Данные нового пользователя\n
+    Raises:\n
+        :raises 409: Если пользователь уже существует
+        :raises 500: Если невозможно добавить данные в базу данных
+    """
     existing_user = await UserDAO.find_one_or_none(email=user_data.name)
     if existing_user:
         raise UserAlreadyExistsException
@@ -22,6 +30,15 @@ async def register_user(user_data: SUserRegister):
 
 @router.post("/login")
 async def login_user(response: Response, user_data: SUserLogin):
+    """
+    Аутентифицирует пользователя и выдает токен доступа.\n
+
+    Args:\n
+        :param response: Объект ответа
+        :param user_data: Данные пользователя для входа
+    Returns:\n
+        :return: Словарь с токеном доступа (coockie)
+    """
     user = await authenticate_user(user_data.name, user_data.password)
     access_token = create_access_token({"sub": str(user.name)})
     response.set_cookie("my_journal_access_token", access_token, httponly=True)
@@ -30,6 +47,12 @@ async def login_user(response: Response, user_data: SUserLogin):
 
 @router.post("/logout")
 async def logout_user(response: Response):
+    """
+    Выход пользователя из системы. \n
+
+    Args:\n
+        :param response: Объект ответа
+    """
     response.delete_cookie("my_journal_access_token")
 
 

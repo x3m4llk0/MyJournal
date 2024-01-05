@@ -6,7 +6,7 @@ from app.api.auth.dependencies import get_current_user
 from app.api.dao.articledao import ArticleDAO
 from app.api.exceptions.exceptions import CannotAddDataToDatabase, ArticleAlreadyExistsException, \
     ArticleNotExistsException, NoPermissionToDeleteException, NoPermissionToEditException
-from app.api.models.schemas import SArticle, SArticleCreate, SArticleEdit
+from app.api.models.schemas import SArticle, SArticleCreateEdit
 from app.api.models.user import User
 
 app = FastAPI()
@@ -31,7 +31,7 @@ async def get_articles(page: int = Query(1, ge=1), per_page: int = Query(5, le=1
 
 # Создание статьи
 @router.post("/create", status_code=201)
-async def create_article(article_data: SArticleCreate, author: User = Depends(get_current_user)) -> SArticle:
+async def create_article(article_data: SArticleCreateEdit, author: User = Depends(get_current_user)) -> SArticle:
     """
         Создает статью.\n
         Args: \n
@@ -40,8 +40,8 @@ async def create_article(article_data: SArticleCreate, author: User = Depends(ge
         Returns: \n
             Dict: Словарь объектов статьи
         Raises: \n
-            409: Статья с таким названием уже существует.
-            500: Не удалось добавить запись.
+            :raises 409: Статья с таким названием уже существует.
+            :raises 500: Не удалось добавить запись.
 
         """
     current_date = datetime.now().date()
@@ -54,7 +54,7 @@ async def create_article(article_data: SArticleCreate, author: User = Depends(ge
 
 # Редактирование статьи по id
 @router.put("/edit/{article_id}")
-async def edit_article(article_id: int, article_data: SArticleEdit,
+async def edit_article(article_id: int, article_data: SArticleCreateEdit,
                        current_user: User = Depends(get_current_user)) -> str:
     """
     Редактирует статью по её идентификатору.\n
@@ -68,8 +68,8 @@ async def edit_article(article_id: int, article_data: SArticleEdit,
         str: Строка с сообщением об успешном редактировании.
 
     Raises:\n
-        404: Если статья не найдена.
-        403: Если нет прав для редактирования статьи.
+        :raises 404: Если статья не найдена.
+        :raises 403: Если нет прав для редактирования статьи.
     """
     existing_article = await ArticleDAO.find_one_or_none(id=article_id)
     if existing_article:
@@ -93,8 +93,8 @@ async def remove_article(article_id: int, current_user: User = Depends(get_curre
     Returns: \n
         str: Cтрока с сообщением об успешном удалении.
     Raises: \n
-        500: Если статья не найдена.
-        403: Если нет прав для удаления статьи.
+        :raises 500: Если статья не найдена.
+        :raises 403: Если нет прав для удаления статьи.
     """
     existing_id = await ArticleDAO.find_one_or_none(id=article_id)
     if existing_id:
