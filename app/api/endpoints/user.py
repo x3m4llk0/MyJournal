@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Response, HTTPException, status
 
 from app.api.auth.auth import authenticate_user, create_access_token, get_password_hash
 from app.api.dao.userdao import UserDAO
+from app.api.exceptions.exceptions import CannotAddDataToDatabase, UserAlreadyExistsException
 
 from app.api.models.schemas import SUserRegister, SUserLogin
 
@@ -12,11 +13,11 @@ router = APIRouter()
 async def register_user(user_data: SUserRegister):
     existing_user = await UserDAO.find_one_or_none(email=user_data.name)
     if existing_user:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Пользователь уже существует")
+        raise UserAlreadyExistsException
     hashed_password = get_password_hash(user_data.password)
     new_user = await UserDAO.add_user(name=user_data.name, email=user_data.email, hashed_password=hashed_password, role='user')
     if not new_user:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Не удалось добавить запись")
+        raise CannotAddDataToDatabase
 
 
 @router.post("/login")

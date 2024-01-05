@@ -11,6 +11,13 @@ class SArticle(BaseModel):
         orm_mode = True
 
 
+class SArticleCreate(BaseModel):
+    title: str
+    contents: str
+    class Config:
+        orm_mode = True
+
+
 class SUserRegister(BaseModel):
     name: str
     email: str

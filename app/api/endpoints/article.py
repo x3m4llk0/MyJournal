@@ -1,9 +1,12 @@
-from fastapi import FastAPI, HTTPException, APIRouter, status
-from pydantic import BaseModel
-from typing import List
+from fastapi import FastAPI, HTTPException, APIRouter, status, Depends
 
+from datetime import datetime
+
+from app.api.auth.dependencies import get_current_user
 from app.api.dao.articledao import ArticleDAO
-from app.api.models.schemas import SArticle
+from app.api.exceptions.exceptions import CannotAddDataToDatabase, ArticleAlreadyExistsException
+from app.api.models.schemas import SArticle, SArticleCreate
+from app.api.models.user import User
 
 app = FastAPI()
 
@@ -16,16 +19,18 @@ async def get_all_articles() -> list[SArticle]:
 
 
 @router.post("/create", status_code=201)
-async def create_article(article_data: SArticle):
+async def create_article(article_data: SArticleCreate, author: User = Depends(get_current_user)):
     existing_title = await ArticleDAO.find_one_or_none(title=article_data.title)
     if existing_title:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Статья с таким названием уже существует")
+        raise ArticleAlreadyExistsException
+
+    current_date = datetime.now().date()
     new_article = await ArticleDAO.add_article(title=article_data.title,
                                                contents=article_data.contents,
-                                               publication_date=article_data.publication_date,
-                                               author=article_data.author)
+                                               publication_date=current_date,
+                                               author=author.name)
     if not new_article:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Не удалось добавить запись")
+        raise CannotAddDataToDatabase
 
 
 
