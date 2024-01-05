@@ -6,7 +6,7 @@ from app.api.exceptions.exceptions import CannotAddDataToDatabase, UserAlreadyEx
 
 from app.api.models.schemas import SUserRegister, SUserLogin
 
-router = APIRouter()
+router = APIRouter(prefix="", tags=["Пользователи"])
 
 
 @router.post("/register", status_code=201)
