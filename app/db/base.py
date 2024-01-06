@@ -1,4 +1,4 @@
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, insert, select, NullPool
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -8,8 +8,12 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from app.core.config import settings
 from app.logger import logger
 
-DATABASE_URL = settings.DATABASE_URL
-DATABASE_PARAMS = {}
+if settings.MODE == "TEST":
+    DATABASE_URL = settings.TEST_DATABASE_URL
+    DATABASE_PARAMS = {"poolclass": NullPool}
+else:
+    DATABASE_URL = settings.DATABASE_URL
+    DATABASE_PARAMS = {}
 
 engine = create_async_engine(DATABASE_URL, **DATABASE_PARAMS)
 
