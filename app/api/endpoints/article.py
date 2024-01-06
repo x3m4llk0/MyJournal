@@ -7,6 +7,7 @@ from app.api.dao.articledao import ArticleDAO
 from app.api.exceptions.exceptions import *
 from app.api.models.schemas import SArticle, SArticleCreateEdit
 from app.api.models.user import User
+from fastapi_cache.decorator import cache
 
 app = FastAPI()
 
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/articles", tags=["Статьи"])
 
 # Получение всех статей
 @router.get('/all')
+@cache(expire=60)
 async def get_all_articles() -> list[SArticle]:
     """
     Получает все статьи.\n
@@ -26,6 +28,7 @@ async def get_all_articles() -> list[SArticle]:
 
 # Получение всех статей c пагинацией
 @router.get("/page", response_model=list[SArticle])
+@cache(expire=30)
 async def get_articles_with_pagination(page: int = Query(1, ge=1), per_page: int = Query(5, le=10)):
     """
     Получает список статей с пагинацией.\n
@@ -42,6 +45,7 @@ async def get_articles_with_pagination(page: int = Query(1, ge=1), per_page: int
 
 # Получение всех статей по автору
 @router.get('/sort_by_author/{author_name}')
+@cache(expire=30)
 async def get_articles_by_author(author_name: str) -> list[SArticle]:
     """
     Получает статьи по имени автора.\n
@@ -55,6 +59,7 @@ async def get_articles_by_author(author_name: str) -> list[SArticle]:
 
 # Получение всех статей по дате
 @router.get('/sort_by_date/{publication_date}')
+@cache(expire=30)
 async def get_articles_by_date(publication_date: str) -> list[SArticle]:
     """
     Получает статьи по дате публикации.\n
