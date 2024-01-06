@@ -2,12 +2,7 @@ from fastapi import Depends, Request
 from jose import ExpiredSignatureError, JWTError, jwt
 
 from app.core.config import settings
-from app.api.exceptions.exceptions import (
-    IncorrectTokenFormatException,
-    TokenAbsentException,
-    TokenExpiredException,
-    UserIsNotPresentException,
-)
+from app.api.exceptions.exceptions import *
 from app.api.dao.userdao import UserDAO
 
 

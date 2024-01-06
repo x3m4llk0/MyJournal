@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, HTTPException, status
+from fastapi import APIRouter, Response
 
 from app.api.auth.auth import authenticate_user, create_access_token, get_password_hash
 from app.api.dao.userdao import UserDAO
@@ -19,7 +19,7 @@ async def register_user(user_data: SUserRegister):
         :raises 409: Если пользователь уже существует
         :raises 500: Если невозможно добавить данные в базу данных
     """
-    existing_user = await UserDAO.find_one_or_none(email=user_data.name)
+    existing_user = await UserDAO.find_one_or_none(name=user_data.name)
     if existing_user:
         raise UserAlreadyExistsException
     hashed_password = get_password_hash(user_data.password)

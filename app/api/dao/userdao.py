@@ -1,6 +1,6 @@
 from app.api.models.user import User
-from app.db.base import BaseDAO, async_session_maker, engine
-from sqlalchemy import delete, insert, select
+from app.db.base import BaseDAO, async_session_maker
+from sqlalchemy import insert
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.logger import logger

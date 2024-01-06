@@ -1,11 +1,10 @@
-from fastapi import FastAPI, HTTPException, APIRouter, Depends, Query
+from fastapi import FastAPI, APIRouter, Depends, Query
 
 from datetime import datetime
 
 from app.api.auth.dependencies import get_current_user
 from app.api.dao.articledao import ArticleDAO
-from app.api.exceptions.exceptions import CannotAddDataToDatabase, ArticleAlreadyExistsException, \
-    ArticleNotExistsException, NoPermissionToDeleteException, NoPermissionToEditException, IncorrectDateFormatException
+from app.api.exceptions.exceptions import *
 from app.api.models.schemas import SArticle, SArticleCreateEdit
 from app.api.models.user import User
 
@@ -41,6 +40,7 @@ async def get_articles_with_pagination(page: int = Query(1, ge=1), per_page: int
     return articles
 
 
+# Получение всех статей по автору
 @router.get('/sort_by_author/{author_name}')
 async def get_articles_by_author(author_name: str) -> list[SArticle]:
     """
@@ -53,6 +53,7 @@ async def get_articles_by_author(author_name: str) -> list[SArticle]:
     return await ArticleDAO.find_by_author(author_name)
 
 
+# Получение всех статей по дате
 @router.get('/sort_by_date/{publication_date}')
 async def get_articles_by_date(publication_date: str) -> list[SArticle]:
     """
@@ -66,7 +67,6 @@ async def get_articles_by_date(publication_date: str) -> list[SArticle]:
     """
     try:
         publication_date = datetime.strptime(publication_date, "%Y-%m-%d")
-        print(publication_date)
         return await ArticleDAO.find_by_date(publication_date)
     except:
         raise IncorrectDateFormatException
@@ -144,5 +144,3 @@ async def remove_article(article_id: int, current_user: User = Depends(get_curre
             raise NoPermissionToDeleteException
     else:
         raise ArticleNotExistsException
-
-

@@ -1,10 +1,5 @@
 from fastapi import HTTPException, status
 
-
-# Создание собственных исключений (exceptions) было изменено
-# на предпочтительный подход.
-# Подробнее в курсе: https://stepik.org/lesson/919993/step/15?unit=925776
-
 class ArticleException(HTTPException):
     status_code = 500
     detail = ""
@@ -47,6 +42,7 @@ class ArticleAlreadyExistsException(ArticleException):
     status_code = status.HTTP_409_CONFLICT
     detail = "Статья с таким названием уже существует"
 
+
 class ArticleNotExistsException(ArticleException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     detail = "Статья с таким ID не существует"
@@ -56,23 +52,15 @@ class NoPermissionToDeleteException(ArticleException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Нет прав для удаления статьи"
 
+
 class NoPermissionToEditException(ArticleException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Нет прав для редактирования статьи"
 
+
 class IncorrectDateFormatException(ArticleException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Некорректный формат даты"
-
-
-class DateFromCannotBeAfterDateTo(ArticleException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Дата заезда не может быть позже даты выезда"
-
-
-class CannotBookHotelForLongPeriod(ArticleException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Невозможно забронировать отель сроком более месяца"
 
 
 class CannotAddDataToDatabase(ArticleException):

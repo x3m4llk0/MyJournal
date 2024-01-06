@@ -1,4 +1,4 @@
-from sqlalchemy import select, update, and_, insert
+from sqlalchemy import select, update, insert
 from app.api.models.article import Article
 from app.db.base import BaseDAO, async_session_maker
 from sqlalchemy.exc import SQLAlchemyError
