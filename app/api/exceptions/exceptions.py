@@ -60,6 +60,10 @@ class NoPermissionToEditException(ArticleException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Нет прав для редактирования статьи"
 
+class IncorrectDateFormatException(ArticleException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "Некорректный формат даты"
+
 
 class DateFromCannotBeAfterDateTo(ArticleException):
     status_code = status.HTTP_400_BAD_REQUEST

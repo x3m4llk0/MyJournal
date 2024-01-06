@@ -1,10 +1,11 @@
-from sqlalchemy import select, update
+from sqlalchemy import select, update, and_, insert
 from app.api.models.article import Article
 from app.db.base import BaseDAO, async_session_maker
-from sqlalchemy import insert, select
 from sqlalchemy.exc import SQLAlchemyError
+import datetime
 
 from app.logger import logger
+
 
 class ArticleDAO(BaseDAO):
     model = Article
@@ -15,7 +16,6 @@ class ArticleDAO(BaseDAO):
             query = select(cls.model)
             result = await session.execute(query)
             return result.scalars().all()
-
 
     @classmethod
     async def add_article(cls, **data) -> Article:
@@ -51,15 +51,21 @@ class ArticleDAO(BaseDAO):
 
     @classmethod
     async def get_articles_paginated(cls, offset: int, limit: int) -> list[Article]:
-        """
-        Получает список статей с пагинацией.
-
-        Args:
-            :param offset: Смещение (начиная с 0)
-            :param limit: Количество статей для выборки
-            :return: Список статей
-        """
         async with async_session_maker() as session:
             query = select(cls.model).offset(offset).limit(limit)
+            result = await session.execute(query)
+            return result.scalars().all()
+
+    @classmethod
+    async def find_by_date(cls, publication_date: datetime) -> list[Article]:
+        async with async_session_maker() as session:
+            query = select(cls.model).where(cls.model.publication_date == publication_date)
+            result = await session.execute(query)
+            return result.scalars().all()
+
+    @classmethod
+    async def find_by_author(cls, author_name: str) -> list[Article]:
+        async with async_session_maker() as session:
+            query = select(cls.model).where(cls.model.author == author_name)
             result = await session.execute(query)
             return result.scalars().all()
