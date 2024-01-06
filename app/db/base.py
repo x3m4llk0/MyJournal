@@ -1,12 +1,11 @@
-from sqlalchemy import delete, insert, select, NullPool
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import select, NullPool
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.core.config import settings
-from app.logger import logger
+
 
 if settings.MODE == "TEST":
     DATABASE_URL = settings.TEST_DATABASE_URL
@@ -42,10 +41,3 @@ class BaseDAO:
             query = select(cls.model.__table__.columns).filter_by(**filter_by)
             result = await session.execute(query)
             return result.mappings().all()
-
-    @classmethod
-    async def delete(cls, **filter_by):
-        async with async_session_maker() as session:
-            query = delete(cls.model).filter_by(**filter_by)
-            await session.execute(query)
-            await session.commit()

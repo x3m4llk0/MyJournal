@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 
-class ArticleException(HTTPException):
+class ArticleAndUserException(HTTPException):
     status_code = 500
     detail = ""
 
@@ -8,63 +8,68 @@ class ArticleException(HTTPException):
         super().__init__(status_code=self.status_code, detail=self.detail)
 
 
-class UserAlreadyExistsException(ArticleException):
+class UserAlreadyExistsException(ArticleAndUserException):
     status_code = status.HTTP_409_CONFLICT
     detail = "Пользователь уже существует"
 
 
-class IncorrectNameOrPasswordException(ArticleException):
+class IncorrectNameOrPasswordException(ArticleAndUserException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Неверное имя или пароль"
 
 
-class TokenExpiredException(ArticleException):
+class TokenExpiredException(ArticleAndUserException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Срок действия токена истек"
 
 
-class TokenAbsentException(ArticleException):
+class TokenAbsentException(ArticleAndUserException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Необходимо авторизоваться"
 
 
-class IncorrectTokenFormatException(ArticleException):
+class IncorrectTokenFormatException(ArticleAndUserException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Неверный формат токена"
 
 
-class UserIsNotPresentException(ArticleException):
+class UserIsNotPresentException(ArticleAndUserException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Необходимо авторизоваться"
 
 
-class ArticleAlreadyExistsException(ArticleException):
+class ArticleAlreadyExistsException(ArticleAndUserException):
     status_code = status.HTTP_409_CONFLICT
     detail = "Статья с таким названием уже существует"
 
 
-class ArticleNotExistsException(ArticleException):
+class ArticleNotExistsException(ArticleAndUserException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     detail = "Статья с таким ID не существует"
 
 
-class NoPermissionToDeleteException(ArticleException):
+class NoPermissionToDeleteException(ArticleAndUserException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Нет прав для удаления статьи"
 
 
-class NoPermissionToEditException(ArticleException):
+class NoPermissionToEditException(ArticleAndUserException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Нет прав для редактирования статьи"
 
 
-class IncorrectDateFormatException(ArticleException):
+class IncorrectDateFormatException(ArticleAndUserException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Некорректный формат даты"
 
 
-class CannotAddDataToDatabase(ArticleException):
+class CannotAddDataToDatabase(ArticleAndUserException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     detail = "Не удалось добавить запись"
 
+
+class UserNotFoundException(Exception):
+    def __init__(self, message="User not found"):
+        self.message = message
+        super().__init__(self.message)
 

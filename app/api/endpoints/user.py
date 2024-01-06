@@ -9,7 +9,7 @@ from app.api.models.schemas import SUserRegister, SUserLogin
 router = APIRouter(prefix="", tags=["Пользователи"])
 
 @router.post("/register", status_code=201)
-async def register_user(user_data: SUserRegister):
+async def register_user(user_data: SUserRegister) ->str:
     """
     Регистрирует нового пользователя.\n
 
@@ -26,6 +26,7 @@ async def register_user(user_data: SUserRegister):
     new_user = await UserDAO.add_user(name=user_data.name, email=user_data.email, hashed_password=hashed_password, role='user')
     if not new_user:
         raise CannotAddDataToDatabase
+    return "Success registrations"
 
 
 @router.post("/login")

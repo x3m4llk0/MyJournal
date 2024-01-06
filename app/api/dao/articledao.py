@@ -1,4 +1,4 @@
-from sqlalchemy import select, update, insert
+from sqlalchemy import select, update, insert, delete
 from app.api.models.article import Article
 from app.db.base import BaseDAO, async_session_maker
 from sqlalchemy.exc import SQLAlchemyError
@@ -39,8 +39,9 @@ class ArticleDAO(BaseDAO):
         try:
             async with async_session_maker() as session:
                 query = update(cls.model).where(cls.model.id == article_id).values(**article_data)
-                await session.execute(query)
+                result = await session.execute(query)
                 await session.commit()
+                return result
         except (SQLAlchemyError, Exception) as e:
             if isinstance(e, SQLAlchemyError):
                 msg = "Database Exc: Cannot update data in table"
@@ -69,3 +70,11 @@ class ArticleDAO(BaseDAO):
             query = select(cls.model).where(cls.model.author == author_name)
             result = await session.execute(query)
             return result.scalars().all()
+
+
+    @classmethod
+    async def delete(cls, **filter_by):
+        async with async_session_maker() as session:
+            query = delete(cls.model).filter_by(**filter_by)
+            await session.execute(query)
+            await session.commit()

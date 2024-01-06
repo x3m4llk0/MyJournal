@@ -18,6 +18,7 @@ from app.main import app as fastapi_app
 async def prepare_database():
     # Обязательно убеждаемся, что работаем с тестовой БД
     assert settings.MODE == "TEST"
+
     async with engine.begin() as conn:
         # Удаление всех заданных нами таблиц из БД
         await conn.run_sync(Base.metadata.drop_all)
@@ -73,5 +74,6 @@ async def authenticated_ac():
         })
         assert ac.cookies["booking_access_token"]
         yield ac
+
 
 
