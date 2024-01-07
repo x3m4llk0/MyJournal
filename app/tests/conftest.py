@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 import pytest
+from asgi_lifespan import LifespanManager
 from httpx import AsyncClient
 from sqlalchemy import insert
 
@@ -13,6 +14,14 @@ from app.db.base import Base, async_session_maker, engine
 from app.main import app as fastapi_app
 
 
+from unittest import mock
+
+def mock_cache():
+    mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
+
+
+def pytest_sessionstart(session):
+    mock_cache()
 
 @pytest.fixture(scope="session", autouse=True)
 async def prepare_database():
@@ -60,7 +69,7 @@ def event_loop(request):
 @pytest.fixture(scope="function")
 async def ac():
     "Асинхронный клиент для тестирования эндпоинтов"
-    async with AsyncClient(app=fastapi_app, base_url="http://test") as ac:
+    async with AsyncClient(app=fastapi_app, base_url="http://test") as ac, LifespanManager(fastapi_app):
         yield ac
 
 
@@ -68,11 +77,11 @@ async def ac():
 async def authenticated_ac():
     "Асинхронный аутентифицированный клиент для тестирования эндпоинтов"
     async with AsyncClient(app=fastapi_app, base_url="http://test") as ac:
-        await ac.post("/api/v1/auth/login", json={
-            "email": "test@test.com",
+        await ac.post("/login", json={
+            "name": "testuser",
             "password": "test",
         })
-        assert ac.cookies["booking_access_token"]
+        assert ac.cookies["my_journal_access_token"]
         yield ac
 
 
