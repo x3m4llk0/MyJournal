@@ -17,7 +17,7 @@ async def register_user(user_data: SUserRegister) ->str:
         :param user_data: Данные нового пользователя\n
     Raises:\n
         :raises 409: Если пользователь уже существует
-        :raises 500: Если невозможно добавить данные в базу данных
+        :raises 422: Если данные невалидны
     """
     existing_user = await UserDAO.find_one_or_none(name=user_data.name)
     if existing_user:

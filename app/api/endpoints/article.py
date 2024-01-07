@@ -137,7 +137,7 @@ async def remove_article(article_id: int, current_user: User = Depends(get_curre
     Returns: \n
         str: Cтрока с сообщением об успешном удалении.
     Raises: \n
-        :raises 500: Если статья не найдена.
+        :raises 404: Если статья не найдена.
         :raises 403: Если нет прав для удаления статьи.
     """
     existing_id = await ArticleDAO.find_one_or_none(id=article_id)

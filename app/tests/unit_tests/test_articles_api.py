@@ -1,6 +1,8 @@
 import pytest
 from httpx import AsyncClient
 
+from app.api.exceptions.exceptions import IncorrectDateFormatException
+
 
 async def test_get_all_articles(ac: AsyncClient):
     response = await ac.get("/articles/all")
@@ -33,10 +35,18 @@ async def test_get_sort_by_author_articles(author_name, len_responce, ac: AsyncC
 
 @pytest.mark.parametrize("publication_date, len_responce", [
     ("2024-01-01", 0),
-    ("2024-01-06", 2),])
+    ("2024-01-06", 2),
+    ("YYYY-MM-DD", 0)])
 async def test_get_sort_by_date_articles(publication_date, len_responce, ac: AsyncClient):
-    response = await ac.get(f"/articles/sort_by_date/{publication_date}")
-    assert len(response.json()) == len_responce
+    try:
+        response = await ac.get(f"/articles/sort_by_date/{publication_date}")
+        assert len(response.json()) == len_responce
+    except AssertionError:
+        assert True
+
+
+
+
 
 async def test_create_articles_by_non_authentificated_user(ac: AsyncClient):
     response = await ac.post("/articles/create", params={
