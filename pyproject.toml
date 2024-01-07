@@ -1,0 +1,3 @@
+[tool.black]
+line-lenght = 88
+target-verion =['py310']
