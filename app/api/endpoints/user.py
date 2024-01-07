@@ -21,6 +21,8 @@ async def register_user(user_data: SUserRegister) -> str:
     Raises:\n
         :raises 409: Если пользователь уже существует
         :raises 422: Если данные невалидны
+    Returns:\n
+        :return: Сообщение об успешной регистрации
     """
     existing_user = await UserDAO.find_one_or_none(name=user_data.name)
     if existing_user:
@@ -38,7 +40,7 @@ async def register_user(user_data: SUserRegister) -> str:
 
 
 @router.post("/login")
-async def login_user(response: Response, user_data: SUserLogin):
+async def login_user(response: Response, user_data: SUserLogin) -> str:
     """
     Аутентифицирует пользователя и выдает токен доступа.\n
 
@@ -46,12 +48,12 @@ async def login_user(response: Response, user_data: SUserLogin):
         :param response: Объект ответа
         :param user_data: Данные пользователя для входа
     Returns:\n
-        :return: Словарь с токеном доступа (coockie)
+        :return: Сообщение об успешной авторизации
     """
     user = await authenticate_user(user_data.name, user_data.password)
     access_token = create_access_token({"sub": str(user.name)})
     response.set_cookie("my_journal_access_token", access_token, httponly=True)
-    return {"access_token": access_token}
+    return "Success login"
 
 
 @router.post("/logout")

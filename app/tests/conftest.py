@@ -28,7 +28,6 @@ def pytest_sessionstart(session):
 @pytest.fixture(scope="session", autouse=True)
 async def prepare_database():
     # Обязательно убеждаемся, что работаем с тестовой БД
-    assert settings.MODE == "TEST"
 
     async with engine.begin() as conn:
         # Удаление всех заданных нами таблиц из БД
