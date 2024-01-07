@@ -88,8 +88,7 @@ async def create_article(article_data: SArticleCreateEdit, author: User = Depend
     Returns: \n
         Dict: Словарь объектов статьи
     Raises: \n
-        :raises 409: Статья с таким названием уже существует.
-        :raises 500: Не удалось добавить запись.
+        :raises 401: Если пользователь не авторизован.
         """
     current_date = datetime.now().date()
     new_article = await ArticleDAO.add_article(title=article_data.title,
@@ -114,6 +113,7 @@ async def edit_article(article_id: int, article_data: SArticleCreateEdit,
     Raises:\n
         :raises 404: Если статья не найдена.
         :raises 403: Если нет прав для редактирования статьи.
+        :raises 401: Если пользователь не авторизован.
     """
     existing_article = await ArticleDAO.find_one_or_none(id=article_id)
     if existing_article:

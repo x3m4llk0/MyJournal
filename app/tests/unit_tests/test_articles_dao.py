@@ -7,9 +7,9 @@ from app.api.exceptions.exceptions import UserNotFoundException
 
 
 @pytest.mark.parametrize("id,is_present", [
-    (1, True),
+    (2, True),
     (4, True),
-    (5, False)
+    (100, False)
 ])
 async def test_find_article_by_id(id, is_present):
     article = await ArticleDAO.find_one_or_none(id=id)

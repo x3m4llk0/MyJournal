@@ -44,7 +44,7 @@ class ArticleAlreadyExistsException(ArticleAndUserException):
 
 
 class ArticleNotExistsException(ArticleAndUserException):
-    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    status_code = status.HTTP_404_NOT_FOUND
     detail = "Статья с таким ID не существует"
 
 
