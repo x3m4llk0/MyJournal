@@ -5,11 +5,13 @@ import pytest
 from app.api.dao.articledao import ArticleDAO
 
 
-@pytest.mark.parametrize("id, title, contents, author", [
-    (5, "Test_title", "Test_contents", "testuser"),
-    (6, "Test_title_2", "Test_contents_2", "testuser2"),
-
-])
+@pytest.mark.parametrize(
+    "id, title, contents, author",
+    [
+        (5, "Test_title", "Test_contents", "testuser"),
+        (6, "Test_title_2", "Test_contents_2", "testuser2"),
+    ],
+)
 async def test_article_crud(id, title, contents, author):
     # Добавление брони
     new_article = await ArticleDAO.add_article(

@@ -1,13 +1,18 @@
-from fastapi import FastAPI, APIRouter, Depends, Query
-
 from datetime import datetime
+
+from fastapi import APIRouter, Depends, FastAPI, Query
+from fastapi_cache.decorator import cache
 
 from app.api.auth.dependencies import get_current_user
 from app.api.dao.articledao import ArticleDAO
-from app.api.exceptions.exceptions import *
+from app.api.exceptions.exceptions import (
+    ArticleNotExistsException,
+    IncorrectDateFormatException,
+    NoPermissionToDeleteException,
+    NoPermissionToEditException,
+)
 from app.api.models.schemas import SArticle, SArticleCreateEdit
 from app.api.models.user import User
-from fastapi_cache.decorator import cache
 
 app = FastAPI()
 
@@ -15,7 +20,7 @@ router = APIRouter(prefix="/articles", tags=["Статьи"])
 
 
 # Получение всех статей
-@router.get('/all')
+@router.get("/all")
 @cache(expire=60)
 async def get_all_articles() -> list[SArticle]:
     """
@@ -29,7 +34,9 @@ async def get_all_articles() -> list[SArticle]:
 # Получение всех статей c пагинацией
 @router.get("/page", response_model=list[SArticle])
 @cache(expire=30)
-async def get_articles_with_pagination(page: int = Query(1, ge=1), per_page: int = Query(5, le=10)):
+async def get_articles_with_pagination(
+        page: int = Query(1, ge=1), per_page: int = Query(5, le=10)
+):
     """
     Получает список статей с пагинацией.\n
     Args:\n
@@ -44,7 +51,7 @@ async def get_articles_with_pagination(page: int = Query(1, ge=1), per_page: int
 
 
 # Получение всех статей по автору
-@router.get('/sort_by_author/{author_name}')
+@router.get("/sort_by_author/{author_name}")
 @cache(expire=30)
 async def get_articles_by_author(author_name: str) -> list[SArticle]:
     """
@@ -58,7 +65,7 @@ async def get_articles_by_author(author_name: str) -> list[SArticle]:
 
 
 # Получение всех статей по дате
-@router.get('/sort_by_date/{publication_date}')
+@router.get("/sort_by_date/{publication_date}")
 @cache(expire=30)
 async def get_articles_by_date(publication_date: str) -> list[SArticle]:
     """
@@ -79,7 +86,9 @@ async def get_articles_by_date(publication_date: str) -> list[SArticle]:
 
 # Создание статьи
 @router.post("/create", status_code=201)
-async def create_article(article_data: SArticleCreateEdit, author: User = Depends(get_current_user)) -> SArticle:
+async def create_article(
+        article_data: SArticleCreateEdit, author: User = Depends(get_current_user)
+) -> SArticle:
     """
     Создает статью.\n
     Args: \n
@@ -89,19 +98,24 @@ async def create_article(article_data: SArticleCreateEdit, author: User = Depend
         Dict: Словарь объектов статьи
     Raises: \n
         :raises 401: Если пользователь не авторизован.
-        """
+    """
     current_date = datetime.now().date()
-    new_article = await ArticleDAO.add_article(title=article_data.title,
-                                               contents=article_data.contents,
-                                               publication_date=current_date,
-                                               author=author.name)
+    new_article = await ArticleDAO.add_article(
+        title=article_data.title,
+        contents=article_data.contents,
+        publication_date=current_date,
+        author=author.name,
+    )
     return new_article
 
 
 # Редактирование статьи по id
 @router.put("/edit/{article_id}")
-async def edit_article(article_id: int, article_data: SArticleCreateEdit,
-                       current_user: User = Depends(get_current_user)) -> str:
+async def edit_article(
+        article_id: int,
+        article_data: SArticleCreateEdit,
+        current_user: User = Depends(get_current_user),
+) -> str:
     """
     Редактирует статью по её идентификатору.\n
     Args:\n
@@ -117,8 +131,13 @@ async def edit_article(article_id: int, article_data: SArticleCreateEdit,
     """
     existing_article = await ArticleDAO.find_one_or_none(id=article_id)
     if existing_article:
-        if current_user.name == existing_article['author'] or current_user.role == 'admin':
-            await ArticleDAO.update_article(article_id=article_id, article_data=article_data.dict())
+        if (
+                current_user.name == existing_article["author"]
+                or current_user.role == "admin"
+        ):
+            await ArticleDAO.update_article(
+                article_id=article_id, article_data=article_data.dict()
+            )
             return "Success edited"
         else:
             raise NoPermissionToEditException
@@ -128,7 +147,10 @@ async def edit_article(article_id: int, article_data: SArticleCreateEdit,
 
 # Удаление статьи по id
 @router.delete("/delete/{article_id}")
-async def remove_article(article_id: int, current_user: User = Depends(get_current_user), ) -> str:
+async def remove_article(
+        article_id: int,
+        current_user: User = Depends(get_current_user),
+) -> str:
     """
     Удаляет статью по её идентификатору.\n
     Args: \n
@@ -142,7 +164,7 @@ async def remove_article(article_id: int, current_user: User = Depends(get_curre
     """
     existing_id = await ArticleDAO.find_one_or_none(id=article_id)
     if existing_id:
-        if current_user.name == existing_id['author'] or current_user.role == 'admin':
+        if current_user.name == existing_id["author"] or current_user.role == "admin":
             await ArticleDAO.delete(id=article_id)
             return "Success deleted"
         else:

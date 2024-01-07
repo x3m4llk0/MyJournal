@@ -1,21 +1,21 @@
+import time
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.logger import logger
-from redis import asyncio as aioredis
-from app.core.config import settings
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-import time
+from redis import asyncio as aioredis
 
 from app.api.endpoints.article import router as router_articles
 from app.api.endpoints.user import router as router_auth
+from app.core.config import settings
+from app.logger import logger
 
 app = FastAPI(
     title="My Journal",
     version="0.1.0",
     root_path="",
-    openapi_url="/api/openapi.json"  # Указываем URL для OpenAPI
+    openapi_url="/api/openapi.json",  # Указываем URL для OpenAPI
 )
 
 app.include_router(router_articles)
@@ -32,15 +32,25 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
-    allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers",
-                   "Access-Control-Allow-Origin",
-                   "Authorization"],
+    allow_headers=[
+        "Content-Type",
+        "Set-Cookie",
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Origin",
+        "Authorization",
+    ],
 )
+
 
 @app.on_event("startup")
 def startup():
-    redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}", encoding="utf8", decode_responses=True)
+    redis = aioredis.from_url(
+        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
+        encoding="utf8",
+        decode_responses=True,
+    )
     FastAPICache.init(RedisBackend(redis), prefix="cache")
+
 
 @app.middleware("http")
 async def add_process_time_header(request, call_next):

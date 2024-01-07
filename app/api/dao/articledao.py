@@ -1,9 +1,10 @@
-from sqlalchemy import select, update, insert, delete
-from app.api.models.article import Article
-from app.db.base import BaseDAO, async_session_maker
-from sqlalchemy.exc import SQLAlchemyError
 import datetime
 
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.api.models.article import Article
+from app.db.base import BaseDAO, async_session_maker
 from app.logger import logger
 
 
@@ -38,7 +39,11 @@ class ArticleDAO(BaseDAO):
     async def update_article(cls, article_id: int, article_data: dict):
         try:
             async with async_session_maker() as session:
-                query = update(cls.model).where(cls.model.id == article_id).values(**article_data)
+                query = (
+                    update(cls.model)
+                    .where(cls.model.id == article_id)
+                    .values(**article_data)
+                )
                 result = await session.execute(query)
                 await session.commit()
                 return result
@@ -60,7 +65,9 @@ class ArticleDAO(BaseDAO):
     @classmethod
     async def find_by_date(cls, publication_date: datetime) -> list[Article]:
         async with async_session_maker() as session:
-            query = select(cls.model).where(cls.model.publication_date == publication_date)
+            query = select(cls.model).where(
+                cls.model.publication_date == publication_date
+            )
             result = await session.execute(query)
             return result.scalars().all()
 
@@ -70,7 +77,6 @@ class ArticleDAO(BaseDAO):
             query = select(cls.model).where(cls.model.author == author_name)
             result = await session.execute(query)
             return result.scalars().all()
-
 
     @classmethod
     async def delete(cls, **filter_by):

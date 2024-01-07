@@ -2,14 +2,17 @@ from fastapi import APIRouter, Response
 
 from app.api.auth.auth import authenticate_user, create_access_token, get_password_hash
 from app.api.dao.userdao import UserDAO
-from app.api.exceptions.exceptions import CannotAddDataToDatabase, UserAlreadyExistsException
-
-from app.api.models.schemas import SUserRegister, SUserLogin
+from app.api.exceptions.exceptions import (
+    CannotAddDataToDatabase,
+    UserAlreadyExistsException,
+)
+from app.api.models.schemas import SUserLogin, SUserRegister
 
 router = APIRouter(prefix="", tags=["Пользователи"])
 
+
 @router.post("/register", status_code=201)
-async def register_user(user_data: SUserRegister) ->str:
+async def register_user(user_data: SUserRegister) -> str:
     """
     Регистрирует нового пользователя.\n
 
@@ -23,7 +26,12 @@ async def register_user(user_data: SUserRegister) ->str:
     if existing_user:
         raise UserAlreadyExistsException
     hashed_password = get_password_hash(user_data.password)
-    new_user = await UserDAO.add_user(name=user_data.name, email=user_data.email, hashed_password=hashed_password, role='user')
+    new_user = await UserDAO.add_user(
+        name=user_data.name,
+        email=user_data.email,
+        hashed_password=hashed_password,
+        role="user",
+    )
     if not new_user:
         raise CannotAddDataToDatabase
     return "Success registrations"
@@ -55,5 +63,3 @@ async def logout_user(response: Response):
         :param response: Объект ответа
     """
     response.delete_cookie("my_journal_access_token")
-
-

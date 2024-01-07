@@ -1,9 +1,14 @@
 from fastapi import Depends, Request
 from jose import ExpiredSignatureError, JWTError, jwt
 
-from app.core.config import settings
-from app.api.exceptions.exceptions import *
 from app.api.dao.userdao import UserDAO
+from app.api.exceptions.exceptions import (
+    IncorrectTokenFormatException,
+    TokenAbsentException,
+    TokenExpiredException,
+    UserIsNotPresentException,
+)
+from app.core.config import settings
 
 
 def get_token(request: Request):
@@ -15,9 +20,7 @@ def get_token(request: Request):
 
 async def get_current_user(token: str = Depends(get_token)):
     try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, settings.ALGORITHM
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
     except ExpiredSignatureError:
         raise TokenExpiredException
     except JWTError:
