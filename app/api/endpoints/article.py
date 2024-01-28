@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends, FastAPI, Query
 from fastapi_cache.decorator import cache
@@ -17,6 +18,42 @@ from app.api.models.user import User
 app = FastAPI()
 
 router = APIRouter(prefix="/articles", tags=["Статьи"])
+
+
+# Объединение всех методов в один
+@router.get("/articles", response_model=List[SArticle])
+@cache(expire=30)
+async def get_articles(
+    page: Optional[int] = Query(None, ge=1),
+    per_page: Optional[int] = Query(None, le=10),
+    author_name: Optional[str] = None,
+    publication_date: Optional[str] = None
+):
+    """
+    Получает статьи с возможностью фильтрации по автору, дате и пагинации.\n
+    Args:\n
+        page: Номер страницы для пагинации.
+        per_page: Количество статей на странице (максимум 10).
+        author_name: Имя автора для фильтрации.
+        publication_date: Дата публикации в формате YYYY-MM-DD для фильтрации.
+    Returns:\n
+        Список статей, отфильтрованных по указанным параметрам.
+    Raises:\n
+        403: Некорректный формат даты.
+    """
+    if author_name:
+        return await ArticleDAO.find_by_author(author_name)
+    elif publication_date:
+        try:
+            publication_date = datetime.strptime(publication_date, "%Y-%m-%d")
+            return await ArticleDAO.find_by_date(publication_date)
+        except ValueError:
+            raise IncorrectDateFormatException
+    elif page is not None and per_page is not None:
+        offset = (page - 1) * per_page
+        return await ArticleDAO.get_articles_paginated(offset=offset, limit=per_page)
+    else:
+        return await ArticleDAO.find_all()
 
 
 # Получение всех статей

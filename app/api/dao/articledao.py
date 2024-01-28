@@ -52,8 +52,8 @@ class ArticleDAO(BaseDAO):
                 msg = "Database Exc: Cannot update data in table"
             elif isinstance(e, Exception):
                 msg = "Unknown Exc: Cannot update data in table"
-
             logger.error(msg, extra={"table": cls.model.__tablename__}, exc_info=True)
+
 
     @classmethod
     async def get_articles_paginated(cls, offset: int, limit: int) -> list[Article]:
